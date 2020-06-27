@@ -530,10 +530,10 @@
 				interrupts = <0 IRQ_TYPE_LEVEL_HIGH>;
 
 				clocks = <&mmcc MDSS_AHB_CLK>,
-					 <&mmcc MDSS_AXI_CLK>,
-					 <&mmcc MDSS_MDP_CLK>,
-					 <&mmcc SMMU_MDP_AXI_CLK>,
-					 <&mmcc MDSS_VSYNC_CLK>;
+						 <&mmcc MDSS_AXI_CLK>,
+						 <&mmcc MDSS_MDP_CLK>,
+						 <&mmcc SMMU_MDP_AXI_CLK>,
+						 <&mmcc MDSS_VSYNC_CLK>;
 				clock-names = "iface",
 					      "bus",
 					      "core",
@@ -548,6 +548,20 @@
 
 					port@0 {
 						reg = <0>;
+						mdp5_intf1_out: endpoint {
+							remote-endpoint = <&dsi0_in>;
+						};
+					};
+
+					port@1 {
+						reg = <1>;
+						mdp5_intf2_out: endpoint {
+							remote-endpoint = <&dsi1_in>;
+						};
+					};
+
+					port@2 {
+						reg = <2>;
 						mdp5_intf3_out: endpoint {
 							remote-endpoint = <&hdmi_in>;
 						};
@@ -568,10 +582,10 @@
 				interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
 
 				clocks = <&mmcc MDSS_MDP_CLK>,
-					 <&mmcc MDSS_AHB_CLK>,
-					 <&mmcc MDSS_HDMI_CLK>,
-					 <&mmcc MDSS_HDMI_AHB_CLK>,
-					 <&mmcc MDSS_EXTPCLK_CLK>;
+						 <&mmcc MDSS_AHB_CLK>,
+						 <&mmcc MDSS_HDMI_CLK>,
+						 <&mmcc MDSS_HDMI_AHB_CLK>,
+						 <&mmcc MDSS_EXTPCLK_CLK>;
 				clock-names =
 					"mdp_core",
 					"iface",
@@ -617,7 +631,138 @@
 				clock-names = "iface",
 					      "ref";
 			};
+
+			dsi0: dsi@994000 {
+				compatible = "qcom,mdss-dsi-ctrl";
+				reg = <0 0x00994000 0 0x400>;
+				reg-names = "dsi_ctrl";
+
+				interrupt-parent = <&mdss>;
+				interrupts = <4 IRQ_TYPE_LEVEL_HIGH>;
+
+				clocks = <&mmcc MDSS_BYTE0_CLK>,
+						 // <&mmcc MDSS_BYTE0_INTF_CLK>,
+						 <&mmcc BYTE0_CLK_SRC>,
+						 <&mmcc MDSS_PCLK0_CLK>,
+						 <&mmcc MDSS_ESC0_CLK>,
+						 <&mmcc MDSS_AHB_CLK>,
+						 <&mmcc MDSS_AXI_CLK>;
+				clock-names = "byte",
+					      "byte_intf",
+					      "pixel",
+					      "core",
+					      "iface",
+					      "bus";
+
+				phys = <&dsi0_phy>;
+				phy-names = "dsi";
+
+				status = "disabled";
+
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					port@0 {
+						reg = <0>;
+						dsi0_in: endpoint {
+							remote-endpoint = <&mdp5_intf1_out>;
+						};
+					};
+
+					port@1 {
+						reg = <1>;
+						dsi0_out: endpoint {
+						};
+					};
+				};
+			};
+
+			dsi0_phy: dsi-phy@994400 {
+				compatible = "qcom,dsi-phy-14nm";
+				reg = <0 0x00994400 0 0x588>,
+				      <0 0x00994500 0 0x488>,
+				      <0 0x00994800 0 0x10a>;
+				reg-names = "dsi_phy",
+					    "dsi_phy_lane",
+					    "dsi_pll";
+
+				#clock-cells = <1>;
+				#phy-cells = <0>;
+
+				clocks = <&mmcc MDSS_AHB_CLK>,
+						 <&mmcc MMSS_CXO_CLK>;
+				clock-names = "iface", "ref";
+
+				status = "disabled";
+			};
+
+			dsi1: dsi@ae96000 {
+				compatible = "qcom,mdss-dsi-ctrl";
+				reg = <0 0x00996000 0 0x400>;
+				reg-names = "dsi_ctrl";
+
+				interrupt-parent = <&mdss>;
+				interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
+
+				clocks = <&mmcc MDSS_BYTE1_CLK>,
+						 // <&mmcc MDSS_BYTE1_INTF_CLK>,
+						 <&mmcc BYTE1_CLK_SRC>,
+						 <&mmcc MDSS_PCLK1_CLK>,
+						 <&mmcc MDSS_ESC1_CLK>,
+						 <&mmcc MDSS_AHB_CLK>,
+						 <&mmcc MDSS_AXI_CLK>;
+				clock-names = "byte",
+					      "byte_intf",
+					      "pixel",
+					      "core",
+					      "iface",
+					      "bus";
+
+				phys = <&dsi1_phy>;
+				phy-names = "dsi";
+
+				status = "disabled";
+
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					port@0 {
+						reg = <0>;
+						dsi1_in: endpoint {
+							remote-endpoint = <&mdp5_intf2_out>;
+						};
+					};
+
+					port@1 {
+						reg = <1>;
+						dsi1_out: endpoint {
+						};
+					};
+				};
+			};
+
+			dsi1_phy: dsi-phy@996000 {
+				compatible = "qcom,dsi-phy-14nm";
+				reg = <0 0x00996400 0 0x588>,
+				      <0 0x00996500 0 0x488>,
+				      <0 0x00996800 0 0x10a>;
+				reg-names = "dsi_phy",
+					    "dsi_phy_lane",
+					    "dsi_pll";
+
+				#clock-cells = <1>;
+				#phy-cells = <0>;
+
+				clocks = <&mmcc MDSS_AHB_CLK>,
+						 <&mmcc MMSS_CXO_CLK>;
+				clock-names = "iface", "ref";
+
+				status = "disabled";
+			};
 		};
+
 		gpu@b00000 {
 			compatible = "qcom,adreno-530.2", "qcom,adreno";
 			#stream-id-cells = <16>;

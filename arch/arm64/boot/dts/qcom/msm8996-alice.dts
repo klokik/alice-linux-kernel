@@ -31,6 +31,14 @@
 	model = "LG Electronics Inc. H850";
 	compatible = "lge,msm8996-h1", "qcom,apq8096-sbc", "qcom,apq8096";
 
+	qcom,msm-id = <291 0x00030001>;
+	qcom,board-id = <0xD08 0>;
+
+	qcom,msm-id=<0xf6 0x30001>;
+	qcom,pmic-id=<0x20009 0x10013 0x0 0x0>;
+	qcom,board-id=<0xd08 0x0>;
+
+
 	aliases {
 		serial0 = &blsp2_uart1;
 		serial1 = &blsp2_uart2;
@@ -46,8 +54,8 @@
 		regulator-always-on;
 		regulator-boot-on;
 
-		// regulator-min-microvolt = <3700000>;
-		// regulator-max-microvolt = <3700000>;
+		regulator-min-microvolt = <3700000>;
+		regulator-max-microvolt = <3700000>;
 	};
 };
 
@@ -350,3 +358,40 @@
 		};
 	};
 };
+
+/*&usb3 {
+	status = "okay";
+	// extcon = <&usb3_id>;
+
+	dwc3@6a00000 {
+		// extcon = <&usb3_id>;
+		dr_mode = "peripheral"; // Force to gadget until we have Type-C hooked up
+	};
+};
+
+&usb3phy {
+	status = "okay";
+
+	// db820c
+	// vdda-phy-supply = <&vreg_l28a_0p925>;
+	// vdda-pll-supply = <&vreg_l12a_1p8>;
+
+	// alice
+	vdda-phy-supply = <&vreg_l28a_0p925>;
+	vdda-pll-supply = <&vreg_l12a_1p8>;
+};*/
+
+// Almost definitely not used
+/*&hsusb_phy1 {
+	status = "okay";
+
+	vdda-pll-supply = <&vreg_l12a_1p8>;
+	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
+};
+
+&hsusb_phy2 {
+	status = "okay";
+
+	vdda-pll-supply = <&vreg_l12a_1p8>;
+	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
+};*/

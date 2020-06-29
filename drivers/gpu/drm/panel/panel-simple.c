@@ -4231,6 +4231,34 @@ static const struct panel_desc_dsi lg_acx467akm_7 = {
 	.lanes = 4,
 };
 
+static const struct drm_display_mode lg_ld4946_mode = {
+	.clock = 150000,
+	.hdisplay = 720,
+	.hsync_start = 720 + 60,
+	.hsync_end = 720 + 60 + 12,
+	.htotal = 720 + 60 + 12 + 80,
+	.vdisplay = 2560,
+	.vsync_start = 2560 + 150,
+	.vsync_end = 2560 + 150 + 1,
+	.vtotal = 2560 + 150 + 1 + 155,
+	.vrefresh = 60,
+};
+
+static const struct panel_desc_dsi lg_ld4946 = {
+	.desc = {
+		.modes = &lg_ld4946_mode,
+		.num_modes = 1,
+		.bpc = 8,
+		.size = {
+			.width = 62,
+			.height = 110,
+		},
+	},
+	.flags = 0,
+	.format = MIPI_DSI_FMT_RGB888,
+	.lanes = 4,
+};
+
 static const struct drm_display_mode osd101t2045_53ts_mode = {
 	.clock = 154500,
 	.hdisplay = 1920,
@@ -4281,6 +4309,9 @@ static const struct of_device_id dsi_of_match[] = {
 	}, {
 		.compatible = "lg,acx467akm-7",
 		.data = &lg_acx467akm_7
+	}, {
+		.compatible = "lg,ld4946",
+		.data = &lg_ld4946
 	}, {
 		.compatible = "osddisplays,osd101t2045-53ts",
 		.data = &osd101t2045_53ts

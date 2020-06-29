@@ -634,28 +634,47 @@
 
 			dsi0: dsi@994000 {
 				compatible = "qcom,mdss-dsi-ctrl";
-				reg = <0 0x00994000 0 0x400>;
+				reg = <0x00994000 0x400>;
 				reg-names = "dsi_ctrl";
 
 				interrupt-parent = <&mdss>;
 				interrupts = <4 IRQ_TYPE_LEVEL_HIGH>;
 
-				clocks = <&mmcc MDSS_BYTE0_CLK>,
-						 // <&mmcc MDSS_BYTE0_INTF_CLK>,
-						 <&mmcc BYTE0_CLK_SRC>,
+				// clocks = <&mmcc MDSS_BYTE0_CLK>,
+				// 		 // <&mmcc MDSS_BYTE0_INTF_CLK>,
+				// 		 <&mmcc BYTE0_CLK_SRC>,
+				// 		 <&mmcc MDSS_PCLK0_CLK>,
+				// 		 <&mmcc MDSS_ESC0_CLK>,
+				// 		 <&mmcc MDSS_AHB_CLK>,
+				// 		 <&mmcc MDSS_AXI_CLK>;
+				// clock-names = "byte",
+				// 	      "byte_intf",
+				// 	      "pixel",
+				// 	      "core",
+				// 	      "iface",
+				// 	      "bus";
+
+				clocks = <&mmcc MDSS_MDP_CLK>,
+						 <&mmcc MDSS_AHB_CLK>,
+						 <&mmcc MDSS_AXI_CLK>,
+						 <&mmcc MDSS_MDP_CLK>,
+						 <&mmcc MDSS_BYTE0_CLK>,
 						 <&mmcc MDSS_PCLK0_CLK>,
 						 <&mmcc MDSS_ESC0_CLK>,
-						 <&mmcc MDSS_AHB_CLK>,
-						 <&mmcc MDSS_AXI_CLK>;
-				clock-names = "byte",
-					      "byte_intf",
-					      "pixel",
-					      "core",
-					      "iface",
-					      "bus";
+						 <&mmcc BYTE0_CLK_SRC>; // not sure
+				clock-names = "mdp_core",
+							  "iface",
+							  "bus",
+							  "core_mmss",
+							  "byte",
+							  "pixel",
+							  "core",
+							  "src";
 
 				phys = <&dsi0_phy>;
-				phy-names = "dsi";
+				phy-names = "dsi_phy";
+
+				power-domains = <&mmcc MDSS_GDSC>;
 
 				status = "disabled";
 
@@ -680,12 +699,12 @@
 
 			dsi0_phy: dsi-phy@994400 {
 				compatible = "qcom,dsi-phy-14nm";
-				reg = <0 0x00994400 0 0x588>,
-				      <0 0x00994500 0 0x488>,
-				      <0 0x00994800 0 0x10a>;
+				reg = <0x00994400 0x588>,
+					  <0x00994500 0x488>,
+					  <0x00994800 0x10a>;
 				reg-names = "dsi_phy",
-					    "dsi_phy_lane",
-					    "dsi_pll";
+							"dsi_phy_lane",
+							"dsi_pll";
 
 				#clock-cells = <1>;
 				#phy-cells = <0>;
@@ -694,33 +713,53 @@
 						 <&mmcc MMSS_CXO_CLK>;
 				clock-names = "iface", "ref";
 
+				power-domains = <&mmcc MDSS_GDSC>;
+
 				status = "disabled";
 			};
 
 			dsi1: dsi@ae96000 {
 				compatible = "qcom,mdss-dsi-ctrl";
-				reg = <0 0x00996000 0 0x400>;
+				reg = <0x00996000 0x400>;
 				reg-names = "dsi_ctrl";
 
 				interrupt-parent = <&mdss>;
 				interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
 
-				clocks = <&mmcc MDSS_BYTE1_CLK>,
-						 // <&mmcc MDSS_BYTE1_INTF_CLK>,
-						 <&mmcc BYTE1_CLK_SRC>,
+				// clocks = <&mmcc MDSS_BYTE1_CLK>,
+				// 		 // <&mmcc MDSS_BYTE1_INTF_CLK>,
+				// 		 <&mmcc BYTE1_CLK_SRC>,
+				// 		 <&mmcc MDSS_PCLK1_CLK>,
+				// 		 <&mmcc MDSS_ESC1_CLK>,
+				// 		 <&mmcc MDSS_AHB_CLK>,
+				// 		 <&mmcc MDSS_AXI_CLK>;
+				// clock-names = "byte",
+				// 			  "byte_intf",
+				// 			  "pixel",
+				// 			  "core",
+				// 			  "iface",
+				// 			  "bus";
+				clocks = <&mmcc MDSS_MDP_CLK>,
+						 <&mmcc MDSS_AHB_CLK>,
+						 <&mmcc MDSS_AXI_CLK>,
+						 <&mmcc MDSS_MDP_CLK>,
+						 <&mmcc MDSS_BYTE1_CLK>,
 						 <&mmcc MDSS_PCLK1_CLK>,
 						 <&mmcc MDSS_ESC1_CLK>,
-						 <&mmcc MDSS_AHB_CLK>,
-						 <&mmcc MDSS_AXI_CLK>;
-				clock-names = "byte",
-					      "byte_intf",
-					      "pixel",
-					      "core",
-					      "iface",
-					      "bus";
+						 <&mmcc BYTE1_CLK_SRC>;
+				clock-names = "mdp_core",
+							  "iface",
+							  "bus",
+							  "core_mmss",
+							  "byte",
+							  "pixel",
+							  "core",
+							  "src";
 
 				phys = <&dsi1_phy>;
-				phy-names = "dsi";
+				phy-names = "dsi_phy";
+
+				power-domains = <&mmcc MDSS_GDSC>;
 
 				status = "disabled";
 
@@ -745,9 +784,9 @@
 
 			dsi1_phy: dsi-phy@996000 {
 				compatible = "qcom,dsi-phy-14nm";
-				reg = <0 0x00996400 0 0x588>,
-				      <0 0x00996500 0 0x488>,
-				      <0 0x00996800 0 0x10a>;
+				reg = <0x00996400 0x588>,
+				      <0x00996500 0x488>,
+				      <0x00996800 0x10a>;
 				reg-names = "dsi_phy",
 					    "dsi_phy_lane",
 					    "dsi_pll";
@@ -759,11 +798,13 @@
 						 <&mmcc MMSS_CXO_CLK>;
 				clock-names = "iface", "ref";
 
+				power-domains = <&mmcc MDSS_GDSC>;
+
 				status = "disabled";
 			};
 		};
 
-		gpu@b00000 {
+		adreno: gpu@b00000 {
 			compatible = "qcom,adreno-530.2", "qcom,adreno";
 			#stream-id-cells = <16>;
 

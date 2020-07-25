@@ -41,7 +41,7 @@
 
 	aliases {
 		serial0 = &blsp2_uart1;
-		serial1 = &blsp2_uart2;
+		serial1 = &blsp1_uart1;
 	};
 
 	chosen {
@@ -100,13 +100,26 @@
 	// };
 };
 
-// &blsp1_uart1 {
-// 	label = "BT-UART";
-// 	status = "okay";
-// 	pinctrl-names = "default", "sleep";
-// 	pinctrl-0 = <&blsp1_uart1_default>;
-// 	pinctrl-1 = <&blsp1_uart1_sleep>;
-// };
+&blsp1_uart1 {
+	label = "BT-UART";
+	status = "okay";
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&blsp1_uart1_default>;
+	pinctrl-1 = <&blsp1_uart1_sleep>;
+
+	bluetooth {
+		compatible = "brcm,bcm4345c0";
+		max-speed = <921600>;
+		// brcm,bt-pcm-int-params = [01 02 00 01 01];
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&bt_reset &bt_host_wake &bt_ext_wake>;
+
+		interrupt-parent = <&msmgpio>;
+		interrupts = <10 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "host-wake";
+	};
+};
 
 &blsp2_uart1 {
 	label = "LS-UART1";
@@ -132,7 +145,7 @@
 	sdc2_cd_on: sdc2_cd_on {
 		config {
 			pins = "gpio95";
-			bias-pull-up;		/* pull up */
+			bias-pull-up;
 			drive-strength = <16>;	/* 16 MA */
 		};
 	};
@@ -140,8 +153,74 @@
 	sdc2_cd_off: sdc2_cd_off {
 		config {
 			pins = "gpio95";
-			bias-pull-up;		/* pull up */
+			bias-pull-up;
 			drive-strength = <2>;	/* 2 MA */
+		};
+	};
+
+	blsp1_uart1_default: blsp1_uart1_default {
+		mux {
+			pins = "gpio41", "gpio42", "gpio43", "gpio44";
+			function = "blsp_uart2";
+		};
+
+		config {
+			pins = "gpio41", "gpio42", "gpio43", "gpio44";
+			drive-strength = <16>;
+			bias-disable;
+		};
+	};
+
+	blsp1_uart1_sleep: blsp1_uart1_sleep {
+		mux {
+			pins = "gpio41", "gpio42", "gpio43", "gpio44";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio41", "gpio42", "gpio43", "gpio44";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+
+	bt_reset: bt_reset {
+		mux {
+			pins = "gpio81";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio81";
+			drive-strength = <2>;
+			// bias-pull-up;
+			bias-disable = <0>;
+		};
+	};
+
+	bt_host_wake: bt_host_wake {
+		mux {
+			pins = "gpio24";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio24";
+			drive-strength = <2>;
+			bias-disable = <0>;
+		};
+	};
+
+	bt_ext_wake: bt_ext_wake {
+		mux {
+			pins = "gpio92";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio92";
+			drive-strength = <2>;
+			bias-disable = <0>;
 		};
 	};
 };

@@ -57,6 +57,47 @@
 		regulator-min-microvolt = <3700000>;
 		regulator-max-microvolt = <3700000>;
 	};
+
+	// panel {
+	// 	status = "disabled"
+	// 	compatible = "lg,ld4946-dm";
+
+	// 	// pinctrl-names = "default";
+	// 	// pinctrl-0 = <&edp_brij_en &edp_brij_irq>;
+
+	// 	// enable-gpios = <&tlmm 102 GPIO_ACTIVE_HIGH>;
+
+	// 	// vdd3-supply = <&reg_panel_vdd3>;
+	// 	// vci-supply = <&pm8916_l17>;
+	// 	// reset-gpios = <&msmgpio 25 GPIO_ACTIVE_HIGH>;
+	// 	// power-supply = <&pp3300_dx_edp>;
+	// 	// backlight = <&backlight>;
+	// 	// no-hpd;
+
+	// 	// qcom,platform-te-gpio = <&tlmm 10 0>;
+	// 	// qcom,platform-reset-gpio = <&tlmm 8 0>;
+
+	// 	no-hpd;
+
+	// 	ports {
+	// 		#address-cells = <1>;
+	// 		#size-cells = <0>;
+
+	// 		port@0 {
+	// 			reg = <0>;
+	// 			panel_left: endpoint {
+	// 				remote-endpoint = <&dsi0_out>;
+	// 			};
+	// 		}
+
+	// 		port@1 {
+	// 			reg = <1>;
+	// 			panel_right: endpoint {
+	// 				remote-endpoint = <&dsi1_out>;
+	// 			};
+	// 		}
+	// 	};
+	// };
 };
 
 // &blsp1_uart1 {
@@ -83,9 +124,27 @@
 	pinctrl-1 = <&blsp2_uart2_4pins_sleep>;
 };
 
-// &mmcc {
-// 	vdd-gfx-supply = <&vdd_gfx>;
-// };
+&mmcc {
+	vdd-gfx-supply = <&vdd_gfx>;
+};
+
+&msmgpio {
+	sdc2_cd_on: sdc2_cd_on {
+		config {
+			pins = "gpio95";
+			bias-pull-up;		/* pull up */
+			drive-strength = <16>;	/* 16 MA */
+		};
+	};
+
+	sdc2_cd_off: sdc2_cd_off {
+		config {
+			pins = "gpio95";
+			bias-pull-up;		/* pull up */
+			drive-strength = <2>;	/* 2 MA */
+		};
+	};
+};
 
 // &pm8994_mpps {
 // 	gpio-line-names =
@@ -115,14 +174,14 @@
 //	};
 //};
 
-// &pmi8994_spmi_regulators {
-// 	vdd_gfx: s2@1700 {
-// 		reg = <0x1700 0x100>;
-// 		regulator-name = "VDD_GFX";
-// 		regulator-min-microvolt = <980000>;
-// 		regulator-max-microvolt = <980000>;
-// 	};
-// };
+&pmi8994_spmi_regulators {
+	vdd_gfx: s2@1700 {
+		reg = <0x1700 0x100>;
+		regulator-name = "VDD_GFX";
+		regulator-min-microvolt = <980000>;
+		regulator-max-microvolt = <980000>;
+	};
+};
 
 &rpm_requests {
 	pm8994-regulators {
@@ -188,6 +247,7 @@
 			regulator-max-microvolt = <1000000>;
 		};
 		vdda_mipi_dsi0_1p2:
+		vdda_mipi_dsi1_1p2:
 		vreg_l2a_1p25: l2 {
 			regulator-name = "vreg_l2a_1p25";
 			regulator-min-microvolt = <1250000>;
@@ -228,6 +288,8 @@
 			regulator-min-microvolt = <1150000>;
 			regulator-max-microvolt = <1150000>;
 		};
+		vddio_hdmi_pll:
+		vddio_mipi_dsi:
 		vreg_l12a_1p8: l12 {
 			regulator-name = "vreg_l12a_1p8";
 			regulator-min-microvolt = <1800000>;
@@ -307,7 +369,9 @@
 			regulator-min-microvolt = <1000000>;
 			regulator-max-microvolt = <1000000>;
 		};
+		vcca_hdmi_pll:
 		vcca_mipi_dsi0_pll:
+		vcca_mipi_dsi1_pll:
 		vreg_l28a_0p925: l28 {
 			regulator-name = "vreg_l28a_0p925";
 			regulator-min-microvolt = <925000>;
@@ -399,15 +463,20 @@
 };*/
 
 &dsi0 {
-	status = "okay";
+	status = "disabled";
 	vdda-supply = <&vdda_mipi_dsi0_1p2>;
 	vcca-supply = <&vcca_mipi_dsi0_pll>;
 	// vdd-supply = <&vdda_mipi_dsi0_1p2>;
-	// vddio-supply = <&vdda_mipi_dsi0_1p2>;
+	vddio-supply = <&vddio_mipi_dsi>;
 
-	// qcom,dual-dsi-mode;
-	// qcom,master-dsi;
-	// qcom,sync-dual-dsi;
+	// lge,extra-gpio-names = "vddio", "vpnl";
+
+	// lge,gpio-vddio = <&tlmm 79 0>;
+	// lge,gpio-vpnl = <&tlmm 94 0>;
+
+	qcom,dual-dsi-mode;
+	qcom,master-dsi;
+	qcom,sync-dual-dsi;
 
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -415,7 +484,7 @@
 	ports {
 		port@1 {
 			dsi0_out: endpoint {
-				remote-endpoint = <&panel_in>;
+				remote-endpoint = <&panel_left>;
 				data-lanes = <0 1 2 3>;
 			};
 		};
@@ -435,8 +504,12 @@
 		// qcom,platform-te-gpio = <&tlmm 10 0>;
 		// qcom,platform-reset-gpio = <&tlmm 8 0>;
 
+		// ports {
+		// 	#address-cells = <1>;
+		// 	#size-cells = <0>;
+
 		port {
-			panel_in: endpoint {
+			panel_left: endpoint {
 				remote-endpoint = <&dsi0_out>;
 			};
 		};
@@ -444,8 +517,67 @@
 };
 
 &dsi0_phy {
-	status = "okay";
+	status = "disabled";
 	vcca-supply = <&vcca_mipi_dsi0_pll>;
+};
+
+&dsi1 {
+	status = "disabled";
+	vdda-supply = <&vdda_mipi_dsi1_1p2>;
+	vcca-supply = <&vcca_mipi_dsi1_pll>;
+	vddio-supply = <&vddio_mipi_dsi>;
+
+	// qcom,dual-dsi-mode;
+	// qcom,master-dsi;
+	// qcom,sync-dual-dsi;
+
+	// #address-cells = <1>;
+	// #size-cells = <0>;
+
+	ports {
+		port@1 {
+			dsi1_out: endpoint {
+				remote-endpoint = <&panel_left>;
+				data-lanes = <0 1 2 3>;
+			};
+		};
+	};
+
+	// panel@0 {
+	// 	reg = <0>;
+	// 	// compatible = "lg,ld4946";
+
+	// 	// vdd3-supply = <&reg_panel_vdd3>;
+	// 	// vci-supply = <&pm8916_l17>;
+	// 	// reset-gpios = <&msmgpio 25 GPIO_ACTIVE_HIGH>;
+	// 	// power-supply = <&pp3300_dx_edp>;
+	// 	// backlight = <&backlight>;
+	// 	// no-hpd;
+
+	// 	// qcom,platform-te-gpio = <&tlmm 10 0>;
+	// 	// qcom,platform-reset-gpio = <&tlmm 8 0>;
+
+	// 	// ports {
+	// 	// 	#address-cells = <1>;
+	// 	// 	#size-cells = <0>;
+
+	// 	port {
+	// 		panel_right: endpoint {
+	// 			remote-endpoint = <&dsi1_out>;
+	// 		};
+	// 	};
+	// };
+};
+
+&dsi1_phy {
+	status = "disabled";
+	vcca-supply = <&vcca_mipi_dsi1_pll>;
+};
+
+&hdmi_phy {
+	status = "okay";
+	vddio-supply = <&vddio_hdmi_pll>;
+	vcca-supply = <&vcca_hdmi_pll>;
 };
 
 // might be not needed - not disabled by default
@@ -459,5 +591,61 @@
 };
 
 &adreno {
-	status = "disabled";
+	status = "okay";
+};
+
+// &sdhc2 {
+// 	/* External SD card */
+// 	status = "okay";
+
+// 	bus-width = <4>;
+
+// 	cd-gpios = <&msmgpio 38 0x1>;
+
+// 	vmmc-supply = <&vreg_l21a_2p95>;
+// 	vqmmc-supply = <&vreg_l13a_2p95>;
+
+// 	pinctrl-names = "default", "sleep";
+// 	pinctrl-0 = <&sdc2_pins_default>;
+// 	pinctrl-1 = <&sdc2_pins_sleep>;
+// };
+
+&sdhc2 {
+	/* External SD card */
+	status = "okay";
+
+	bus-width = <4>;
+
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&sdc2_clk_on &sdc2_cmd_on &sdc2_data_on &sdc2_cd_on>;
+	pinctrl-1 = <&sdc2_clk_off &sdc2_cmd_off &sdc2_data_off &sdc2_cd_off>;
+
+	cd-gpios = <&msmgpio 95 0x0>;
+
+	vmmc-supply = <&vreg_l21a_2p95>;
+	vqmmc-supply = <&vreg_l13a_2p95>;
+};
+
+&ufshc {
+	status = "okay";
+
+	// reset-gpios = <&tlmm 150 GPIO_ACTIVE_LOW>;
+
+	vcc-supply = <&vreg_l20a_2p95>;
+	vccq-supply = <&vreg_l25a_1p2>;
+	vccq2-supply = <&vreg_s4a_1p8>;
+
+	vcc-max-microamp = <600000>;
+	vccq-max-microamp = <450000>;
+	vccq2-max-microamp = <450000>;
+};
+
+&ufsphy {
+	status = "okay";
+
+	vdda-phy-supply = <&vreg_l28a_0p925>;
+	vdda-pll-supply = <&vreg_l12a_1p8>;
+
+	vdda-phy-max-microamp = <18380>;
+	vdda-pll-max-microamp = <9440>;
 };

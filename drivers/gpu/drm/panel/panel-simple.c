@@ -4232,11 +4232,11 @@ static const struct panel_desc_dsi lg_acx467akm_7 = {
 };
 
 static const struct drm_display_mode lg_ld4946_mode = {
-	.clock = 150000,
-	.hdisplay = 720,
-	.hsync_start = 720 + 60,
-	.hsync_end = 720 + 60 + 12,
-	.htotal = 720 + 60 + 12 + 80,
+	.clock = 150000 * 2,
+	.hdisplay = (720) * 2,
+	.hsync_start = (720 + 60) * 2,
+	.hsync_end = (720 + 60 + 12) * 2,
+	.htotal = (720 + 60 + 12 + 80) * 2,
 	.vdisplay = 2560,
 	.vsync_start = 2560 + 150,
 	.vsync_end = 2560 + 150 + 1,
@@ -4250,8 +4250,8 @@ static const struct panel_desc_dsi lg_ld4946 = {
 		.num_modes = 1,
 		.bpc = 8,
 		.size = {
-			.width = 62,
-			.height = 110,
+			.width = 66,
+			.height = 117,
 		},
 	},
 	.flags = 0,

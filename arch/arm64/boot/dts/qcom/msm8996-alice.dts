@@ -109,15 +109,18 @@
 
 	bluetooth {
 		compatible = "brcm,bcm4345c0";
-		max-speed = <921600>;
+		max-speed = <2000000>; //<921600>;
 		// brcm,bt-pcm-int-params = [01 02 00 01 01];
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&bt_reset &bt_host_wake &bt_ext_wake>;
 
 		interrupt-parent = <&msmgpio>;
-		interrupts = <10 IRQ_TYPE_EDGE_RISING>;
+		interrupts = <24 IRQ_TYPE_EDGE_RISING>;
 		interrupt-names = "host-wake";
+
+		shutdown-gpios = <&msmgpio 81 GPIO_ACTIVE_HIGH>;
+		device-wakeup-gpios = <&msmgpio 92 GPIO_ACTIVE_HIGH>;
 	};
 };
 
@@ -193,7 +196,6 @@
 		config {
 			pins = "gpio81";
 			drive-strength = <2>;
-			// bias-pull-up;
 			bias-disable = <0>;
 		};
 	};
@@ -202,6 +204,7 @@
 		mux {
 			pins = "gpio24";
 			function = "gpio";
+			input-enable;
 		};
 
 		config {

@@ -425,7 +425,7 @@
 	};
 };
 
-/*&usb3 {
+&usb3 {
 	status = "okay";
 	// extcon = <&usb3_id>;
 
@@ -438,23 +438,20 @@
 &usb3phy {
 	status = "okay";
 
-	// db820c
-	// vdda-phy-supply = <&vreg_l28a_0p925>;
-	// vdda-pll-supply = <&vreg_l12a_1p8>;
-
-	// alice
 	vdda-phy-supply = <&vreg_l28a_0p925>;
 	vdda-pll-supply = <&vreg_l12a_1p8>;
-};*/
+};
 
-// Almost definitely not used
-/*&hsusb_phy1 {
+// This one is used for usb-c together with usb3phy
+&hsusb_phy1 {
 	status = "okay";
 
 	vdda-pll-supply = <&vreg_l12a_1p8>;
 	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
 };
 
+// Almost definitely not used
+/*
 &hsusb_phy2 {
 	status = "okay";
 
@@ -575,7 +572,7 @@
 };
 
 &hdmi_phy {
-	status = "okay";
+	status = "disabled";
 	vddio-supply = <&vddio_hdmi_pll>;
 	vcca-supply = <&vcca_hdmi_pll>;
 };
@@ -587,34 +584,18 @@
 
 // might be not needed - not disabled by default
 &mdp {
-	status = "okay";
+	status = "disabled";
 };
 
 &adreno {
 	status = "okay";
 };
 
-// &sdhc2 {
-// 	/* External SD card */
-// 	status = "okay";
-
-// 	bus-width = <4>;
-
-// 	cd-gpios = <&msmgpio 38 0x1>;
-
-// 	vmmc-supply = <&vreg_l21a_2p95>;
-// 	vqmmc-supply = <&vreg_l13a_2p95>;
-
-// 	pinctrl-names = "default", "sleep";
-// 	pinctrl-0 = <&sdc2_pins_default>;
-// 	pinctrl-1 = <&sdc2_pins_sleep>;
-// };
-
 &sdhc2 {
 	/* External SD card */
 	status = "okay";
 
-	bus-width = <4>;
+	// bus-width = <4>; // already set in SoC dtsi
 
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&sdc2_clk_on &sdc2_cmd_on &sdc2_data_on &sdc2_cd_on>;

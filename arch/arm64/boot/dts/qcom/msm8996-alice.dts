@@ -593,7 +593,7 @@
 
 &sdhc2 {
 	/* External SD card */
-	status = "okay";
+	status = "disabled"; // irq is not received ...
 
 	// bus-width = <4>; // already set in SoC dtsi
 

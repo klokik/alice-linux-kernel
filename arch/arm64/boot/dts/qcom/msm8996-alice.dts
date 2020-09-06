@@ -40,7 +40,7 @@
 		// #size-cells = <2>;
 		// ranges;
 
-		// framebuffer0: framebuffer@83401900 {
+		// framebuffer0: framebuffer@83401000 {
 		// 	compatible = "simple-framebuffer";
 		// 	reg = <0 0x83401900 0 0xa8c000>;
 		// 	width = <1440>;
@@ -371,11 +371,20 @@
 };
 
 &pm8994_gpios {
-		wlan_en_gpios: wlan_en_gpios {
+	anx_pd_gpios: pm8994_gpio5 {
+		pinconf {
+			pins = "gpio5";
+			output-low;
+			power-source = <PM8994_GPIO_S4>; // 1.8V
+			qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
+		};
+	};
+
+	wlan_en_gpios: wlan_en_gpios {
 		pinconf {
 			pins = "gpio8";
 			function = PMIC_GPIO_FUNC_NORMAL;
-			output-low;
+			output-high;
 			power-source = <PM8994_GPIO_S4>; // 1.8V
 			qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
 			bias-pull-down;
@@ -920,8 +929,8 @@
 		// qcom,hdmi-tx-map = <&mdss_hdmi_tx>;
 
 		pinctrl-names = "default", "sleep";
-		pinctrl-0	= <&anx7816_isr_active &mdss_hdmi_hpd_active &mdss_hdmi_ddc_active &mdss_hdmi_cec_active>;
-		pinctrl-1	= <&anx7816_isr_sleep &mdss_hdmi_hpd_suspend &mdss_hdmi_ddc_suspend &mdss_hdmi_cec_suspend>;
+		pinctrl-0	= <&anx7816_isr_active &mdss_hdmi_hpd_active &mdss_hdmi_ddc_active &mdss_hdmi_cec_active &anx_pd_gpios>;
+		pinctrl-1	= <&anx7816_isr_sleep &mdss_hdmi_hpd_suspend &mdss_hdmi_ddc_suspend &mdss_hdmi_cec_suspend &anx_pd_gpios>;
 
 		ports {
 			#address-cells = <1>;
@@ -947,6 +956,7 @@
 &pcie0 {
 	status = "okay";
 	perst-gpio = <&msmgpio 35 GPIO_ACTIVE_LOW>;
+	// wlan-hostwake-gpio = <&msmgpio 78 0>;
 	vddpe-3v3-supply = <&wlan_en>;
 	vdda-supply = <&vreg_l28a_0p925>;
 };

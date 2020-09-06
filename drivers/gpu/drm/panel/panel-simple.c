@@ -4341,7 +4341,6 @@ static const struct drm_display_mode lg_ld4946_mode = {
 	.vsync_start = 2560 + 150,
 	.vsync_end = 2560 + 150 + 1,
 	.vtotal = 2560 + 150 + 1 + 155,
-	.vrefresh = 60,
 };
 
 static const struct panel_desc_dsi lg_ld4946 = {

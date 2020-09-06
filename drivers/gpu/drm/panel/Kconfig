@@ -191,7 +191,7 @@ config DRM_PANEL_LG_LG4573
 	  To compile this driver as a module, choose M here.
 
 config DRM_PANEL_LG_LG494X
-	tristate "LG4945/LG4946 RGB/SPI panel"
+	tristate "LG4945/LG4946 MIPI DSI panel"
 	depends on OF
 	depends on DRM_MIPI_DSI
 	depends on BACKLIGHT_CLASS_DEVICE

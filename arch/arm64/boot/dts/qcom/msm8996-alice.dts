@@ -59,6 +59,23 @@
 		regulator-min-microvolt = <3700000>;
 		regulator-max-microvolt = <3700000>;
 	};
+
+	wlan_en: wlan-en-1-8v {
+		pinctrl-names = "default";
+		pinctrl-0 = <&wlan_en_gpios>;
+		compatible = "regulator-fixed";
+		regulator-name = "wlan-en-regulator";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+
+		gpio = <&pm8994_gpios 8 0>;
+
+		/* WLAN card specific delay */
+		startup-delay-us = <70000>;
+		enable-active-high;
+
+		regulator-always-on;
+	};
 };
 
 &blsp1_uart1 {
@@ -289,6 +306,79 @@
 			pins = "gpio31";
 			drive-strength = <2>;
 			bias-disable;
+		};
+	};
+
+	pmx_rd_nfc_int{
+		label = "pmx_nfc_int";
+		nfc_int_active: active {
+			pins = "gpio9";
+			drive-strength = <6>;
+			bias-disable;
+		};
+		nfc_int_suspend: suspend {
+			pins = "gpio9";
+			drive-strength = <6>;
+			bias-disable;
+		};
+	};
+
+	pmx_nfc_reset{
+		label = "pmx_nfc_disable";
+		nfc_disable_active: active {
+			pins = "gpio12";
+			drive-strength = <6>;
+			bias-disable;
+		};
+
+		nfc_disable_suspend: suspend {
+			pins = "gpio12";
+			drive-strength = <6>;
+			bias-disable;
+		};
+	};
+
+	pmx_nfc_mode{
+		label = "pmx_nfc_mode";
+
+		nfc_mode_active: active {
+			pins = "gpio11";
+			drive-strength = <6>;
+			bias-disable;
+		};
+
+		nfc_mode_suspend: suspend {
+			pins = "gpio11";
+			drive-strength = <6>;
+			 bias-disable;
+		};
+	};
+
+	pmx_nfc_wake{
+		label = "pmx_nfc_wake";
+
+		nfc_wake_active: active {
+			pins = "gpio11";
+			drive-strength = <6>;
+			bias-pull-up;
+		};
+		nfc_wake_suspend: suspend {
+			pins = "gpio11";
+			drive-strength = <6>;
+			bias-disable;
+		};
+	};
+};
+
+&pm8994_gpios {
+		wlan_en_gpios: wlan_en_gpios {
+		pinconf {
+			pins = "gpio8";
+			function = PMIC_GPIO_FUNC_NORMAL;
+			output-low;
+			power-source = <PM8994_GPIO_S4>; // 1.8V
+			qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
+			bias-pull-down;
 		};
 	};
 };
@@ -812,12 +902,12 @@
 		interrupt-parent = <&msmgpio>;
 		interrupts = <90 IRQ_TYPE_EDGE_FALLING>;
 
+		hpd-gpios = <&msmgpio 34 GPIO_ACTIVE_HIGH>;
 		pd-gpios = <&pm8994_gpios 5 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&msmgpio 75 GPIO_ACTIVE_HIGH>;
 
-		// TODO: add regulators to driver
-		dvdd-supply = <&vdd_anx7816_1p0>;
-		avdd-supply = <&vdd_anx7816_1p0>;
+		dvdd10-supply = <&vdd_anx7816_1p0>;
+		avdd10-supply = <&vdd_anx7816_1p0>; // TODO: add regulator to driver or remove
 
 		// analogix,reset-gpio = <&tlmm 75 0x00>;
 		// analogix,irq-gpio = <&tlmm 77 0x00>;
@@ -851,5 +941,43 @@
 			// 	};
 			// };
 		};
+	};
+};
+
+&pcie0 {
+	status = "okay";
+	perst-gpio = <&msmgpio 35 GPIO_ACTIVE_LOW>;
+	vddpe-3v3-supply = <&wlan_en>;
+	vdda-supply = <&vreg_l28a_0p925>;
+};
+
+&pcie_phy {
+	status = "okay";
+	vdda-phy-supply = <&vreg_l28a_0p925>;
+	vdda-pll-supply = <&vreg_l12a_1p8>;
+};
+
+&blsp2_i2c1 {
+	status = "enabled";
+	clock-frequency = <400000>;
+
+	pn547: pn547@28 {
+		status = "enabled";
+
+		compatible = "nxp,pn547-i2c", "nxp,pn544-i2c";
+
+		reg = <0x28>;
+		clock-frequency = <400000>;
+
+		interrupt-parent = <&msmgpio>;
+		interrupts = <9 GPIO_ACTIVE_HIGH>;
+
+		// clk-gpios = <&msmgpio 10 GPIO_ACTIVE_HIGH>; // used?
+		enable-gpios = <&msmgpio 12 GPIO_ACTIVE_HIGH>;
+		firmware-gpios = <&msmgpio 11 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "active", "suspend";
+		pinctrl-0 = <&nfc_int_active &nfc_disable_active &nfc_mode_active>;
+		pinctrl-1 = <&nfc_int_suspend &nfc_disable_suspend &nfc_mode_suspend>;
 	};
 };

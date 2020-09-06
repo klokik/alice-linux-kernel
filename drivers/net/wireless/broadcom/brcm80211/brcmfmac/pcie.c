@@ -46,6 +46,7 @@ enum brcmf_pcie_state {
 };
 
 BRCMF_FW_DEF(43602, "brcmfmac43602-pcie");
+BRCMF_FW_DEF(4345, "brcmfmac43455-pcie");
 BRCMF_FW_DEF(4350, "brcmfmac4350-pcie");
 BRCMF_FW_DEF(4350C, "brcmfmac4350c2-pcie");
 BRCMF_FW_DEF(4356, "brcmfmac4356-pcie");
@@ -61,6 +62,7 @@ BRCMF_FW_DEF(4371, "brcmfmac4371-pcie");
 
 static const struct brcmf_firmware_mapping brcmf_pcie_fwnames[] = {
 	BRCMF_FW_ENTRY(BRCM_CC_43602_CHIP_ID, 0xFFFFFFFF, 43602),
+	BRCMF_FW_ENTRY(BRCM_CC_4345_CHIP_ID, 0xFFFFFFFF, 4345),
 	BRCMF_FW_ENTRY(BRCM_CC_43465_CHIP_ID, 0xFFFFFFF0, 4366C),
 	BRCMF_FW_ENTRY(BRCM_CC_4350_CHIP_ID, 0x000000FF, 4350C),
 	BRCMF_FW_ENTRY(BRCM_CC_4350_CHIP_ID, 0xFFFFFF00, 4350),
@@ -2095,6 +2097,7 @@ static const struct dev_pm_ops brcmf_pciedrvr_pm = {
 	subvend, subdev, PCI_CLASS_NETWORK_OTHER << 8, 0xffff00, 0 }
 
 static const struct pci_device_id brcmf_pcie_devid_table[] = {
+	BRCMF_PCIE_DEVICE(BRCM_PCIE_43455_DEVICE_ID),
 	BRCMF_PCIE_DEVICE(BRCM_PCIE_4350_DEVICE_ID),
 	BRCMF_PCIE_DEVICE_SUB(0x4355, BRCM_PCIE_VENDOR_ID_BROADCOM, 0x4355),
 	BRCMF_PCIE_DEVICE(BRCM_PCIE_4354_RAW_DEVICE_ID),

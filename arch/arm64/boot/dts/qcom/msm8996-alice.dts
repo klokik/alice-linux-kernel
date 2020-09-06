@@ -14,18 +14,6 @@
 // #include <dt-bindings/sound/qcom,q6afe.h>
 // #include <dt-bindings/sound/qcom,q6asm.h>
 
-/*
- * GPIO name legend: proper name = the GPIO line is used as GPIO
- *         NC      = not connected (pin out but not routed from the chip to
- *                   anything the board)
- *         "[PER]" = pin is muxed for [peripheral] (not GPIO)
- *         LSEC    = Low Speed External Connector
- *         P HSEC  = Primary High Speed External Connector
- *         S HSEC  = Secondary High Speed External Connector
- *         J14     = Camera Connector
- *         TP      = Test Points
- *
- */
 
 / {
 	model = "LG Electronics Inc. H850";
@@ -197,6 +185,110 @@
 			pins = "gpio92";
 			drive-strength = <2>;
 			bias-disable = <0>;
+		};
+	};
+
+	anx7816_isr_active: anx7816_isr_active {
+		mux {
+			pins = "gpio77";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio77";
+			driver-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	anx7816_isr_sleep: anx7816_isr_sleep {
+		mux {
+			pins = "gpio77";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio77";
+			driver-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	mdss_hdmi_hpd_active: mdss_hdmi_hpd_active {
+		mux {
+			pins = "gpio34";
+			function = "hdmi_hot";
+		};
+
+		config {
+			pins = "gpio34";
+			bias-pull-down;
+			drive-strength = <16>;
+		};
+	};
+
+	mdss_hdmi_hpd_suspend: mdss_hdmi_hpd_suspend {
+		mux {
+			pins = "gpio34";
+			function = "hdmi_hot";
+		};
+
+		config {
+			pins = "gpio34";
+			bias-bus-hold;
+			drive-strength = <2>;
+		};
+	};
+
+	mdss_hdmi_ddc_active: mdss_hdmi_ddc_active {
+		mux {
+			pins = "gpio32", "gpio33";
+			function = "hdmi_ddc";
+		};
+
+		config {
+			pins = "gpio32", "gpio33";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+	};
+
+	mdss_hdmi_ddc_suspend: mdss_hdmi_ddc_suspend {
+		mux {
+			pins = "gpio32", "gpio33";
+			function = "hdmi_ddc";
+		};
+
+		config {
+			pins = "gpio32", "gpio33";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+
+	mdss_hdmi_cec_active: mdss_hdmi_cec_active {
+		mux {
+			pins = "gpio31";
+			function = "hdmi_cec";
+		};
+
+		config {
+			pins = "gpio31";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+	};
+
+	mdss_hdmi_cec_suspend: mdss_hdmi_cec_suspend {
+		mux {
+			pins = "gpio31";
+			function = "hdmi_cec";
+		};
+
+		config {
+			pins = "gpio31";
+			drive-strength = <2>;
+			bias-disable;
 		};
 	};
 };
@@ -419,10 +511,12 @@
 			regulator-max-microvolt = <1200000>;
 			regulator-allow-set-load;
 		};
+		vdd_anx7816_1p0:
 		vreg_l26a_0p8: l27 {
 			regulator-name = "vreg_l26a_0p8";
 			regulator-min-microvolt = <1000000>;
 			regulator-max-microvolt = <1000000>;
+			// regulator-always-on;
 		};
 		vcca_hdmi_pll:
 		vcca_mipi_dsi0_pll:
@@ -515,7 +609,7 @@
 };*/
 
 &dsi0 {
-	status = "okay";
+	status = "disabled";
 	vdda-supply = <&vdda_mipi_dsi0_1p2>;
 	vcca-supply = <&vcca_mipi_dsi0_pll>;
 	// vdd-supply = <&vdda_mipi_dsi0_1p2>;
@@ -589,12 +683,12 @@
 };
 
 &dsi0_phy {
-	status = "okay";
+	status = "disabled";
 	vcca-supply = <&vcca_mipi_dsi0_pll>;
 };
 
 &dsi1 {
-	status = "okay";
+	status = "disabled";
 	vdda-supply = <&vdda_mipi_dsi1_1p2>;
 	vcca-supply = <&vcca_mipi_dsi1_pll>;
 	vddio-supply = <&vddio_mipi_dsi>;
@@ -630,12 +724,25 @@
 };
 
 &dsi1_phy {
-	status = "okay";
+	status = "disabled";
 	vcca-supply = <&vcca_mipi_dsi1_pll>;
 };
 
+&hdmi {
+	status = "okay";
+
+	ports {
+		port@1 {
+			reg = <1>;
+			hdmi_out: endpoint {
+				remote-endpoint = <&anx7816_in>;
+			};
+		};
+	};
+};
+
 &hdmi_phy {
-	status = "disabled";
+	status = "okay";
 	vddio-supply = <&vddio_hdmi_pll>;
 	vcca-supply = <&vcca_hdmi_pll>;
 };
@@ -690,4 +797,59 @@
 
 	vdda-phy-max-microamp = <18380>;
 	vdda-pll-max-microamp = <9440>;
+};
+
+&blsp1_i2c6 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	analogix_anx7816@72 {
+		status = "ok";
+
+		compatible = "analogix,anx7814";
+		reg = <0x72>;
+
+		interrupt-parent = <&msmgpio>;
+		interrupts = <90 IRQ_TYPE_EDGE_FALLING>;
+
+		pd-gpios = <&pm8994_gpios 5 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&msmgpio 75 GPIO_ACTIVE_HIGH>;
+
+		// TODO: add regulators to driver
+		dvdd-supply = <&vdd_anx7816_1p0>;
+		avdd-supply = <&vdd_anx7816_1p0>;
+
+		// analogix,reset-gpio = <&tlmm 75 0x00>;
+		// analogix,irq-gpio = <&tlmm 77 0x00>;
+		// analogix,p-dwn-gpio = <&pm8994_gpios 5 0x0>;
+		// analogix,cbl-det-gpio = <&tlmm 90 0x0>;
+		// analogix,vdd_dig-supply = <&pm8994_l27>; //DVDD10
+		// lge,external-ldo-control = <0>;
+		// analogix,i2c-pull-up = <1>;
+
+		// qcom,hdmi-tx-map = <&mdss_hdmi_tx>;
+
+		pinctrl-names = "default", "sleep";
+		pinctrl-0	= <&anx7816_isr_active &mdss_hdmi_hpd_active &mdss_hdmi_ddc_active &mdss_hdmi_cec_active>;
+		pinctrl-1	= <&anx7816_isr_sleep &mdss_hdmi_hpd_suspend &mdss_hdmi_ddc_suspend &mdss_hdmi_cec_suspend>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				anx7816_in: endpoint {
+					remote-endpoint = <&hdmi_out>;
+				};
+			};
+
+			// port@1 {
+			// 	reg = <1>;
+			// 	anx7816_out: endpoint {
+			// 		remote-endpoint = <&edp_out>;
+			// 	};
+			// };
+		};
+	};
 };

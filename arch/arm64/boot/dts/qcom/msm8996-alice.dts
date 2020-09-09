@@ -76,6 +76,33 @@
 
 		regulator-always-on;
 	};
+
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		autorepeat;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&volume_up_gpio>, <&hall_ic_gpio>;
+
+		button@0 {
+			label = "Volume Down";
+			linux,code = <KEY_VOLUMEDOWN>;
+			gpios = <&pm8994_gpios 2 GPIO_ACTIVE_LOW>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+		};
+
+		button@1 {
+			label = "Hall IC";
+			linux,code = <KEY_SLEEP>; // KEY_SCREENLOCK
+			gpios = <&msmgpio 124 GPIO_ACTIVE_LOW>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+		};
+	};
 };
 
 &blsp1_uart1 {
@@ -231,6 +258,20 @@
 		};
 	};
 
+	hall_ic_gpio: hall_ic_gpio {
+		mux {
+			pins = "gpio124";
+			function = "gpio";
+			input-enable;
+		};
+
+		config {
+			pins = "gpio124";
+			drive-strength = <2>;
+			bias-disable = <0>;
+		};
+	};
+
 	mdss_hdmi_hpd_active: mdss_hdmi_hpd_active {
 		mux {
 			pins = "gpio34";
@@ -377,6 +418,18 @@
 			output-low;
 			power-source = <PM8994_GPIO_S4>; // 1.8V
 			qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
+		};
+	};
+
+	volume_up_gpio: pm8996_gpio2 {
+		pinconf {
+			pins = "gpio2";
+			function = "normal";
+			input-enable;
+			drive-push-pull;
+			bias-pull-up;
+			qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
+			power-source = <PM8994_GPIO_S4>; // 1.8V
 		};
 	};
 

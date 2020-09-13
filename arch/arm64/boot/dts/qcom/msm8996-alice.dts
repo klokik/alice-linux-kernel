@@ -84,6 +84,8 @@
 		#size-cells = <0>;
 		autorepeat;
 
+		status = "okay";
+
 		pinctrl-names = "default";
 		pinctrl-0 = <&volume_up_gpio>, <&hall_ic_gpio>;
 
@@ -761,7 +763,7 @@
 };*/
 
 &dsi0 {
-	status = "disabled";
+	status = "okay";
 	vdda-supply = <&vdda_mipi_dsi0_1p2>;
 	vcca-supply = <&vcca_mipi_dsi0_pll>;
 	// vdd-supply = <&vdda_mipi_dsi0_1p2>;
@@ -786,6 +788,7 @@
 	};
 
 	panel@0 {
+		status = "disabled";
 		compatible = "lge,lg4946-2k-display";
 		reg = <0>;
 		// vdda-supply = <&vreg_l14a_1p88>;
@@ -813,34 +816,35 @@
 		};
 	};
 
-	// panel@0 {
-	// 	compatible = "lg,ld4946";
-	// 	reg = <0>;
+/*	panel@0 {
+		status = "okay";
+		compatible = "lg,ld4946";
+		reg = <0>;
 
-	// 	reset-gpios = <&msmgpio 8 GPIO_ACTIVE_HIGH>;
-	// 	displ-te-gpios = <&msmgpio 10 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&msmgpio 8 GPIO_ACTIVE_HIGH>;
+		displ-te-gpios = <&msmgpio 10 GPIO_ACTIVE_HIGH>;
 
-	// 	ports {
-	// 		#address-cells = <1>;
-	// 		#size-cells = <0>;
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
 
-	// 		port@0 {
-	// 			reg = <0>;
-	// 			panel_left: endpoint {
-	// 				remote-endpoint = <&dsi0_out>;
-	// 			};
-	// 		};
-	// 	};
-	// };
+			port@0 {
+				reg = <0>;
+				panel_left: endpoint {
+					remote-endpoint = <&dsi0_out>;
+				};
+			};
+		};
+	};*/
 };
 
 &dsi0_phy {
-	status = "disabled";
+	status = "okay";
 	vcca-supply = <&vcca_mipi_dsi0_pll>;
 };
 
 &dsi1 {
-	status = "disabled";
+	status = "okay";
 	vdda-supply = <&vdda_mipi_dsi1_1p2>;
 	vcca-supply = <&vcca_mipi_dsi1_pll>;
 	vddio-supply = <&vddio_mipi_dsi>;
@@ -857,26 +861,26 @@
 		};
 	};
 
-	// panel@0 {
-	// 	compatible = "lg,ld4946";
-	// 	reg = <0>;
+/*	panel@0 {
+		compatible = "lg,ld4946";
+		reg = <0>;
 
-	// 	ports {
-	// 		#address-cells = <1>;
-	// 		#size-cells = <0>;
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
 
-	// 		port@0 {
-	// 			reg = <0>;
-	// 			panel_right: endpoint {
-	// 				remote-endpoint = <&dsi1_out>;
-	// 			};
-	// 		};
-	// 	};
-	// };
+			port@0 {
+				reg = <0>;
+				panel_right: endpoint {
+					remote-endpoint = <&dsi1_out>;
+				};
+			};
+		};
+	};*/
 };
 
 &dsi1_phy {
-	status = "disabled";
+	status = "okay";
 	vcca-supply = <&vcca_mipi_dsi1_pll>;
 };
 
@@ -1021,11 +1025,11 @@
 };
 
 &blsp2_i2c1 {
-	status = "enabled";
+	status = "okay";
 	clock-frequency = <400000>;
 
 	pn547: pn547@28 {
-		status = "enabled";
+		status = "okay";
 
 		compatible = "nxp,pn547-i2c", "nxp,pn544-i2c";
 
@@ -1042,5 +1046,57 @@
 		pinctrl-names = "active", "suspend";
 		pinctrl-0 = <&nfc_int_active &nfc_disable_active &nfc_mode_active>;
 		pinctrl-1 = <&nfc_int_suspend &nfc_disable_suspend &nfc_mode_suspend>;
+	};
+};
+
+&blsp2_spi5 {
+	status = "okay";
+
+	lg4946@0 {
+		compatible = "lge,lg4946";
+		reg = <0>;
+		status = "disabled";
+
+		interrupt-parent = <&msmgpio>;
+		interrupts = <125 0x2008>;
+
+		irqflags = <0x00000002>;
+		spi-max-frequency = <15000000>;
+
+		// pinctrl-names = "touch_pin_active", "touch_pin_sleep";
+		// pinctrl-0 = <&ts_reset_active &ts_int_active>;
+		// pinctrl-1 = <&ts_reset_suspend &ts_int_suspend>;
+
+		reset-gpio = <&msmgpio 89 0x00>;
+		irq-gpio = <&msmgpio 125 0x2008>;
+
+		/* Caps */
+		max_x = <1439>;
+		max_y = <2559>;
+		max_pressure = <0xff>;
+		max_width_major = <1439>;
+		max_width_minor = <2559>;
+		max_orientation = <90>;
+		max_id = <10>;
+		hw_reset_delay = <90>;
+		sw_reset_delay = <10>;
+
+		/* Role */
+		use_lpwg = <1>;
+		use_lpwg_test = <1>;
+		hide_coordinate = <1>;
+
+		/* Firmware */
+		fw_image = "touch/h1/L0L53P1_1_22.img",
+			 "touch/h1/L0L53P1_1_14.img";
+
+		panel_spec = "touch/h1/h1_limit.txt";
+		panel_spec_mfts_folder = "touch/h1/h1_limit_mfts.txt";
+
+		/* ASC */
+		use_asc = <0>;
+		low_delta_thres = <350>;
+		high_delta_thres = <600>;
+		max_delta_cnt = <2>;
 	};
 };

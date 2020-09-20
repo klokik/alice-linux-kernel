@@ -34,7 +34,7 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
-		bootargs = "root=/dev/ram0 loglevel=7 drm.debug=1";
+		bootargs = "root=/dev/ram0 loglevel=7 drm.debug=0xff sdhci.debug_quirks=0x40 sdhci.debug_quirks2=0x4"; // adma for sdhci will be disabled
 
 		// #address-cells = <2>;
 		// #size-cells = <2>;
@@ -90,8 +90,8 @@
 		pinctrl-0 = <&volume_up_gpio>, <&hall_ic_gpio>;
 
 		button@0 {
-			label = "Volume Down";
-			linux,code = <KEY_VOLUMEDOWN>;
+			label = "Volume Up";
+			linux,code = <KEY_VOLUMEUP>;
 			gpios = <&pm8994_gpios 2 GPIO_ACTIVE_LOW>;
 			gpio-key,wakeup;
 			debounce-interval = <15>;
@@ -152,7 +152,50 @@
 };
 
 &msmgpio {
+	panel_reset: panel_reset {
+		mux {
+			pins = "gpio8";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio8";
+			drive-strength = <8>;
+			bias-disable;
+			output-high;
+		};
+	};
+
+	mdss_te_active: mdss_te_active {
+		mux {
+			pins = "gpio10";
+			function = "mdp_vsync";
+		};
+		config {
+			pins = "gpio10";
+			drive-strength = <2>; /* 8 mA */
+			bias-pull-down;
+		};
+	};
+
+	mdss_dsi_active3: mdss_dsi_active3 {
+		mux {
+			pins = "gpio121";
+			function = "gpio";
+		};
+
+		pmx_mdss {
+			pins = "gpio121";
+			drive-strength = <2>; /* 2 mA */
+			bias-pull-down;
+		};
+	};
+
 	sdc2_cd_on: sdc2_cd_on {
+		mux {
+			pins = "gpio95";
+			function = "gpio";
+		};
 		config {
 			pins = "gpio95";
 			bias-pull-up;
@@ -161,6 +204,10 @@
 	};
 
 	sdc2_cd_off: sdc2_cd_off {
+		mux {
+			pins = "gpio95";
+			function = "gpio";
+		};
 		config {
 			pins = "gpio95";
 			bias-pull-up;
@@ -428,7 +475,6 @@
 			pins = "gpio2";
 			function = "normal";
 			input-enable;
-			drive-push-pull;
 			bias-pull-up;
 			qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
 			power-source = <PM8994_GPIO_S4>; // 1.8V
@@ -763,7 +809,7 @@
 };*/
 
 &dsi0 {
-	status = "okay";
+	status = "disabled";
 	vdda-supply = <&vdda_mipi_dsi0_1p2>;
 	vcca-supply = <&vcca_mipi_dsi0_pll>;
 	// vdd-supply = <&vdda_mipi_dsi0_1p2>;
@@ -788,13 +834,16 @@
 	};
 
 	panel@0 {
-		status = "disabled";
+		status = "okay";
 		compatible = "lge,lg4946-2k-display";
 		reg = <0>;
 		// vdda-supply = <&vreg_l14a_1p88>;
 
 		reset-gpios = <&msmgpio 8 GPIO_ACTIVE_HIGH>;
-		displ-te-gpios = <&msmgpio 10 GPIO_ACTIVE_HIGH>;
+		// displ-te-gpios = <&msmgpio 10 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "panel_active"; //, "panel_suspend";
+		pinctrl-0 = <&panel_reset &mdss_te_active &mdss_dsi_active3>;
 
 		ports {
 			#address-cells = <1>;
@@ -844,7 +893,7 @@
 };
 
 &dsi1 {
-	status = "okay";
+	status = "disabled";
 	vdda-supply = <&vdda_mipi_dsi1_1p2>;
 	vcca-supply = <&vcca_mipi_dsi1_pll>;
 	vddio-supply = <&vddio_mipi_dsi>;
@@ -917,13 +966,13 @@
 
 &sdhc2 {
 	/* External SD card */
-	status = "disabled"; // irq is not received ...
+	status = "okay"; // irq is not received ...
 
 	// bus-width = <4>; // already set in SoC dtsi
 
-	pinctrl-names = "default", "sleep";
+	pinctrl-names = "default"/*, "sleep"*/;
 	pinctrl-0 = <&sdc2_clk_on &sdc2_cmd_on &sdc2_data_on &sdc2_cd_on>;
-	pinctrl-1 = <&sdc2_clk_off &sdc2_cmd_off &sdc2_data_off &sdc2_cd_off>;
+	// pinctrl-1 = <&sdc2_clk_off &sdc2_cmd_off &sdc2_data_off &sdc2_cd_off>;
 
 	cd-gpios = <&msmgpio 95 0x0>;
 
@@ -953,6 +1002,10 @@
 
 	vdda-phy-max-microamp = <18380>;
 	vdda-pll-max-microamp = <9440>;
+
+	vddp-ref-clk-supply = <&vreg_l25a_1p2>;
+	vddp-ref-clk-max-microamp = <100>;
+	vddp-ref-clk-always-on;
 };
 
 &blsp1_i2c6 {

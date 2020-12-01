@@ -36,18 +36,20 @@
 		stdout-path = "serial0:115200n8";
 		bootargs = "root=/dev/ram0 loglevel=7 drm.debug=0xff sdhci.debug_quirks=0x40 sdhci.debug_quirks2=0x4"; // adma for sdhci will be disabled
 
-		// #address-cells = <2>;
-		// #size-cells = <2>;
-		// ranges;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
 
-		// framebuffer0: framebuffer@83401000 {
-		// 	compatible = "simple-framebuffer";
-		// 	reg = <0 0x83401900 0 0xa8c000>;
-		// 	width = <1440>;
-		// 	height = <2560>;
-		// 	stride = <4320>;
-		// 	format = "r8g8b8";
-		// };
+		framebuffer0: framebuffer@83401000 {
+			compatible = "simple-framebuffer";
+			reg = <0 0x83401900 0 0xa8c000>;
+			width = <1440>;
+			height = <2560>;
+			stride = <4320>;
+			format = "r8g8b8";
+
+			status = "disabled";
+		};
 	};
 
 	vph_pwr: vph-pwr-regulator {
